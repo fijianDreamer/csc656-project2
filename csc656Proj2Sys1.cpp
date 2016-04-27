@@ -24,8 +24,9 @@ int main(int argc, char* argv[])
 	long long pcAddr, memAddr, data; 
 	int nBytes, c; // The # of bytes read / write (4th item read in)
 	char option; // option is W for write or R for read
-	int numBlocksOffset, numBlocks, index, tag, in1, in2, i;
-	numBlocksOffset = numBlocks = index = tag = in1 = in2 = i = 0;
+	int numBlocksOffset, numBlocks, numIndex, numTag, in1, in2, i;
+	unsigned int offset, index, tag;
+	numBlocksOffset = numBlocks = numIndex = numTag = in1 = in2 = i = 0;
 	int b = 32; // Defined in assignment handout (byte blocks)
 	ifstream aTraceFile;
 	aTraceFile.open(argv[1]); // Open the file given on the command line
@@ -43,13 +44,16 @@ int main(int argc, char* argv[])
 			// Make sure to show how the memory address is divided into tag, index, and offset
 			numBlocksOffset = log2(b); // log base 2 of (32) = 5 --> 2^5 = 32
 			numBlocks = ((c * 1024) / b); // ((c*1024) / b)
-			index = log2(numBlocks); // log2(c/b)
-			tag = b - (numBlocksOffset + index);
+			numIndex = log2(numBlocks); // log2(c/b)
+			numTag = b - (numBlocksOffset + numIndex);
 			// Create a for loop. This for loop will keep track of the line num as well
 			if (i >= in1 && i <= in2) // print line
 			{
 				cout << std::hex << pcAddr << option << std::hex << memAddr << nBytes << std::hex << data << endl;
-				cout << i << endl;
+				index = memAddr << numTag; // Get the index in hexadecimal
+				index >>= (numTag + numBlocksOffset);
+				tag = memAddr >> (numIndex + numBlocksOffset); // Get the tag in hexadecimal
+				cout << i << " " << std::hex << index  << " " << tag << endl;
 			}
 			i++;
 		}
